@@ -4,7 +4,6 @@
 
 <script>
 export default {
-  /* eslint-disable no-console */
   props: ["type"],
   methods: {
     imgPath() {
