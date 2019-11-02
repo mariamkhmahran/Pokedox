@@ -1,6 +1,6 @@
 <template>
-  <div class="homeContainer">
-    <Poke-Card :key="poke" v-for="poke in pokes" :pokemon="poke"></Poke-Card>
+  <div :class="{sideContainer:this.side, mainContainer:!this.side}" class="homeContainer">
+    <Poke-Card :side="side" :key="i" v-for="(id, i) in IDs" :ID="id"></Poke-Card>
   </div>
 </template>
 
@@ -8,27 +8,26 @@
 import axios from "axios";
 import PokeCard from "./PokeCard/PokeCard";
 
-/* eslint-disable no-console */
-async function getAllPokemons() {
-  var pokes = [];
-  await axios.get("https://pokeapi.co/api/v2/pokemon").then(res => {
-    pokes = res.data.results;
-  });
-  return pokes;
-}
-
 export default {
   name: "home",
   components: {
     PokeCard
   },
+  props: {
+    side: Boolean
+  },
   data: () => {
     return {
-      pokes: []
+      IDs: []
     };
   },
   beforeMount() {
-    getAllPokemons().then(p => (this.pokes = p));
+    axios.get("https://pokeapi.co/api/v2/pokemon").then(res => {
+      this.IDs = res.data.results.map(pokemon => {
+        var num = pokemon.url.split("/");
+        return num[num.length - 2];
+      });
+    });
   }
 };
 </script>
@@ -41,19 +40,30 @@ export default {
   justify-content: center;
   align-items: center;
   padding: 10px;
-  width: 80%;
   margin: auto;
-  margin-top: 85px;
   overflow: scroll;
+}
+.mainContainer {
+  width: 80%;
+  margin-top: 85px;
+}
+
+.sideContainer {
+  position: fixed;
+  top: 85px;
+  left: 20px;
+  bottom: 10px;
+  width: 46%;
+  overflow-y: scroll;
 }
 
 ::-webkit-scrollbar {
-  width: 0px; /* Remove scrollbar space */
-  background: transparent; /* Optional: just make scrollbar invisible */
+  width: 0px;
+  background: transparent;
 }
 
 @media only screen and (max-width: 1200px) {
-  .homeContainer {
+  .mainContainer {
     width: 97%;
   }
 }
