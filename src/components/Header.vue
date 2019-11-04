@@ -15,6 +15,7 @@ export default {};
   background-color: black;
   box-shadow: 0px 5px 15px rgba(128, 128, 128, 0.589);
   position: fixed;
+  z-index: 10;
 }
 
 .mainHeader #logo {
