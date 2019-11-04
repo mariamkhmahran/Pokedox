@@ -34,7 +34,13 @@
       </div>
     </div>
     <div class="row stats">
-      <stats :key="i" v-for="(stat, i) in stats" :param="stat.name" :value="stat.value" />
+      <stats :key="stat.name" v-for="stat in stats" :param="stat.name" :value="stat.value" />
+    </div>
+    <div class="row abilities">
+      <span id="abilitiesParam">
+        <b>ABILITIES:</b>
+      </span>
+      <span :key="ability" v-for="ability in abilities" id="abilities">{{ability}}</span>
     </div>
   </div>
 </template>
@@ -56,6 +62,7 @@ export default {
       desc: "",
       spriteURL: "",
       types: [],
+      abilities: [],
       height: 0,
       weight: 0,
       baseExp: 0,
@@ -81,6 +88,7 @@ export default {
     pokemon() {
       this.spriteURL = this.pokemon.sprites.front_default;
       this.types = this.pokemon.types.map(t => t.type.name);
+      this.abilities = this.pokemon.abilities.map(t => t.ability.name);
       this.pokeName = this.pokemon.name;
       this.height = this.pokemon.height / 10;
       this.weight = this.pokemon.weight / 10;
@@ -139,6 +147,7 @@ export default {
   font-size: 20px;
   width: 100%;
   height: 140px;
+  text-overflow: ellipsis;
 }
 
 .data.desc {
@@ -169,7 +178,7 @@ export default {
 }
 
 .row.detail {
-  margin-top: 16px;
+  margin-top: 30px;
   justify-content: space-around;
 }
 
@@ -206,7 +215,30 @@ export default {
 }
 
 .row.stats {
-  margin: 35px 15px 0 15px;
-  /* justify-content: space-around; */
+  margin: 30px 0 0 0;
+  flex-wrap: wrap;
+  justify-content: space-around;
+}
+
+.row #abilities {
+  margin-left: 5px;
+  font-size: 18px;
+  color: rgb(141, 140, 140);
+}
+
+#abilities:not(:last-child):after {
+  content: ", ";
+}
+
+#abilitiesParam {
+  font-size: 18px;
+  color: black;
+  margin-top: 2px;
+  margin-right: 3px;
+}
+
+.row.abilities {
+  align-items: center;
+  margin: 20px 35px 0;
 }
 </style>
