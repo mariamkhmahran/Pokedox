@@ -29,7 +29,9 @@ Vue.mixin({
       await axios
         .get(`https://pokeapi.co/api/v2/pokemon-species/${ID}`)
         .then(p => {
-          desc = p.data.flavor_text_entries[1].flavor_text;
+          desc = p.data.flavor_text_entries.find(t => {
+            return t.language.name === "en";
+          }).flavor_text;
         });
       return { pokemon, desc };
     }
