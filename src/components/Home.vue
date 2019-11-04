@@ -1,33 +1,52 @@
 <template>
   <div :class="{sideContainer:this.side, mainContainer:!this.side}" class="homeContainer">
     <Poke-Card :side="side" :key="i" v-for="(id, i) in IDs" :ID="id"></Poke-Card>
+    <scroll-loader :loader-method="getMorePokemons" :loader-enable="loadMore">
+      <div>Loading...</div>
+    </scroll-loader>
   </div>
 </template>
 
 <script>
 import axios from "axios";
 import PokeCard from "./PokeCard/PokeCard";
+import ScrollLoader from "vue-scroll-loader";
+/* eslint-disable no-console */
 
 export default {
   name: "home",
   components: {
-    PokeCard
+    PokeCard,
+    ScrollLoader
   },
   props: {
     side: Boolean
   },
   data: () => {
     return {
-      IDs: []
+      loadMore: true,
+      IDs: [],
+      next: ""
     };
   },
   beforeMount() {
-    axios.get("https://pokeapi.co/api/v2/pokemon").then(res => {
-      this.IDs = res.data.results.map(pokemon => {
-        var num = pokemon.url.split("/");
-        return num[num.length - 2];
+    this.getPokemonsData("https://pokeapi.co/api/v2/pokemon");
+  },
+  methods: {
+    getPokemonsData(url) {
+      axios.get(url).then(res => {
+        this.next = res.next;
+        this.IDs = res.data.results.map(pokemon => {
+          var num = pokemon.url.split("/");
+          return num[num.length - 2];
+        });
       });
-    });
+    },
+    getMorePokemons() {
+      console.log("here");
+
+      this.getPokemonsData(this.next);
+    }
   }
 };
 </script>
