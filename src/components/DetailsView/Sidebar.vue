@@ -7,29 +7,47 @@
         <span id="pokeName">
           <b>{{pokeName}}</b>
         </span>
-        <span class="data desc">{{desc}}</span>
+        <span class="desc data">{{desc}}</span>
+        <div class="row types">
+          <Tag :key="type" v-for="type in types" :type="type" details id="tags" />
+        </div>
       </div>
     </div>
-    <div class="col">
-      <span class="data">
-        <b>Height:</b>
-        {{height}} m
-      </span>
-      <span class="data">
-        <b>Weight:</b>
-        {{weight}} kg
-      </span>
-      <span class="data">
-        <b>Base Experience:</b>
-        {{baseExp}}
-      </span>
+    <div class="row detail">
+      <div class="col detail border">
+        <span id="value">
+          <b>{{height}} m</b>
+        </span>
+        <span id="param">HEIGHT</span>
+      </div>
+      <div class="col detail border">
+        <span id="value">
+          <b>{{weight}} kg</b>
+        </span>
+        <span id="param">WEIGHT</span>
+      </div>
+      <div class="col detail">
+        <span id="value">
+          <b>{{baseExp}}</b>
+        </span>
+        <span id="param">BASE EXP</span>
+      </div>
+    </div>
+    <div class="row stats">
+      <stats :key="i" v-for="(stat, i) in stats" :param="stat.name" :value="stat.value" />
     </div>
   </div>
 </template>
 
 <script>
+import Tag from "../Tag";
+import Stats from "./Stats";
 /* eslint-disable no-console */
 export default {
+  components: {
+    Tag,
+    Stats
+  },
   props: ["ID"],
   data: () => {
     return {
@@ -40,7 +58,8 @@ export default {
       types: [],
       height: 0,
       weight: 0,
-      baseExp: 0
+      baseExp: 0,
+      stats: []
     };
   },
   created() {
@@ -66,6 +85,10 @@ export default {
       this.height = this.pokemon.height / 10;
       this.weight = this.pokemon.weight / 10;
       this.baseExp = this.pokemon.base_experience;
+      this.stats = this.pokemon.stats.map(s => ({
+        name: s.stat.name,
+        value: s.base_stat
+      }));
     }
   },
   methods: {
@@ -86,7 +109,6 @@ export default {
   width: 46%;
   height: 80vh;
   transition: all 0.2s ease-in-out;
-  cursor: pointer;
   box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.2);
   transition: 0.3s;
   border-radius: 6px;
@@ -103,8 +125,8 @@ export default {
   margin: 15px;
   border-style: solid;
   border-width: 2px;
-  border-color: rgba(150, 148, 148, 0.651);
-  box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.2);
+  border-color: rgba(150, 148, 148, 0.185);
+  box-shadow: 0 2px 8px 0 rgba(255, 90, 96, 0.37);
 }
 
 .data {
@@ -114,19 +136,25 @@ export default {
 }
 
 .desc {
-  font-size: 22px;
+  font-size: 20px;
+  width: 100%;
+  height: 140px;
+}
+
+.data.desc {
+  margin: 0 0 0px 15px;
 }
 
 #pokeNumber {
   color: rgb(141, 140, 140);
-  margin: 20px 0px 7px 15px;
+  margin: 20px 0px 5px 15px;
   font-size: 25px;
 }
 
 #pokeName {
   color: black;
-  font-size: 40px;
-  margin: 0px 0px 17px 15px;
+  font-size: 39px;
+  margin: 0px 0px 10px 15px;
 }
 
 .row {
@@ -138,5 +166,47 @@ export default {
   display: flex;
   flex-direction: column;
   flex-wrap: wrap;
+}
+
+.row.detail {
+  margin-top: 16px;
+  justify-content: space-around;
+}
+
+.col.detail {
+  justify-content: center;
+  align-items: center;
+  width: 31%;
+}
+
+.col.border {
+  border-right-style: solid;
+  border-right-width: 1px;
+  border-right-color: rgba(128, 128, 128, 0.651);
+}
+
+#value {
+  font-size: 22px;
+  color: black;
+}
+
+#param {
+  font-size: 18px;
+  color: rgb(141, 140, 140);
+  margin-top: 2px;
+}
+
+.types {
+  margin: 10px 20px;
+}
+
+.row.types {
+  width: 32%;
+  justify-content: space-between;
+}
+
+.row.stats {
+  margin: 35px 15px 0 15px;
+  /* justify-content: space-around; */
 }
 </style>
