@@ -1,66 +1,42 @@
 <template>
   <div class="container">
-    <div id="param">
-      <span id="paramValue">{{paramFormatted}}</span>
+    <div class="stat">
+      <span id="paramValue">{{param}} {{value}}</span>
     </div>
-    <div :key="i" v-for="i in numberOfDots" class="stat" />
   </div>
 </template>
 
 <script>
-/* eslint-disable no-console */
 export default {
-  props: ["param", "value"],
-  computed: {
-    numberOfDots() {
-      return Math.floor(this.value / 10);
-    },
-    paramFormatted() {
-      var v = this.param.split("-").join(" ");
-      console.log(v);
-
-      return v;
-    }
-  }
+  props: ["param", "value"]
 };
 </script>
 
 <style scoped>
 .stat {
-  background-color: #ffc81d;
-  /* border-style: solid;
-  border-color: #3860a9;
-  border-width: 2px; */
-  border-radius: 50%;
-  width: 15px;
-  height: 15px;
-  margin: 0 auto;
-}
-.stat:after {
-  content: ".";
-  visibility: hidden;
+  background-color: #087e8b;
+  border-radius: 50vh;
+  width: 80%;
+  height: 50px;
+  margin: 10px auto;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  padding-left: 5px;
+  box-shadow: 0 5px 10px 0 rgba(0, 0, 0, 0.281);
 }
 
 .container {
   display: flex;
-  align-content: center;
-  flex-direction: column-reverse;
-  /* margin: 0 20px; */
-  width: 40px;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  width: 32%;
 }
 
 #paramValue {
-  display: inline-block;
-  align-self: center;
-  font-size: 12px;
-  color: rgb(141, 140, 140);
-  transform: rotate(-90deg);
-  display: flex;
-}
-
-#param {
-  margin-top: 12px;
-  align-self: center;
-  height: 45px;
+  font-size: 17px;
+  color: white;
 }
 </style>
