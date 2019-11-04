@@ -1,23 +1,24 @@
 <template>
-  <div class="cardBody" @click="showDetails" :class="{side: this.side}">
-    <div id="Upper">
-      <img id="sprite" :src="spriteURL" />
-    </div>
-    <div class="cardFooter">
-      <span id="pokeNumber">{{pokeNumber}}</span>
-      <br />
-      <span id="pokeName">
-        <b>{{pokeName}}</b>
-      </span>
-      <div id="tags">
-        <Tag :key="type" v-for="type in types" :type="type" />
+  <div id="container" :class="{side: this.side}" @click="showDetails">
+    <div class="cardBody">
+      <div id="Upper"></div>
+      <div class="cardFooter">
+        <span id="pokeNumber">{{pokeNumber}}</span>
+        <br />
+        <span id="pokeName">
+          <b>{{pokeName}}</b>
+        </span>
+        <div id="tags">
+          <Tag :key="type" v-for="type in types" :type="type" />
+        </div>
       </div>
     </div>
+    <img id="sprite" :src="spriteURL" />
   </div>
 </template>
 
 <script>
-import Tag from "./Tag";
+import Tag from "../Tag";
 
 export default {
   components: {
@@ -58,29 +59,42 @@ export default {
 </script>
 
 <style scoped>
-.cardBody {
+#container {
   width: 22%;
   margin: 10px auto;
-  transition: all 0.2s ease-in-out;
+  position: relative;
   cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+.cardBody {
+  width: 100%;
+  height: 100%;
   display: flex;
   flex-direction: column;
   box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.2);
-  transition: 0.3s;
   border-radius: 6px;
+  position: relative;
+  top: 0px;
+  right: 0px;
 }
 
-.side {
+.side#container {
   width: 45%;
 }
 
-.cardBody:hover {
+#container:hover {
   transform: scale(1.03);
+  box-shadow: 0 2px 12px 0 rgba(255, 90, 96, 0.37);
+}
+
+#container:hover #sprite {
+  box-shadow: 0 2px 12px 0 rgba(255, 90, 96, 0.37);
 }
 
 .cardFooter {
   height: 73px;
   padding: 8%;
+  margin-top: 21%;
 }
 
 #pokeNumber {
@@ -96,13 +110,25 @@ export default {
 #sprite {
   align-self: center;
   width: 80%;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.2);
+  border-radius: 50%;
+  background-color: white;
+  position: absolute;
+  z-index: 1;
+  top: 5px;
+  left: 11%;
+  transition: 0.3s;
 }
 
 #Upper {
   display: flex;
   flex-direction: column;
-  box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.2);
+  background-image: url("../../assets/background.png");
   transition: 0.3s;
+  height: 150px;
+  overflow: visible;
+  border-top-left-radius: 6px;
+  border-top-right-radius: 6px;
 }
 
 #tags {
@@ -112,7 +138,7 @@ export default {
 }
 
 @media only screen and (max-width: 1050px) {
-  .cardBody {
+  .container {
     width: 32%;
   }
   .side {
@@ -120,7 +146,7 @@ export default {
   }
 }
 @media only screen and (max-width: 800px) {
-  .cardBody {
+  .container {
     width: 49%;
   }
   .side {
@@ -128,7 +154,7 @@ export default {
   }
 }
 @media only screen and (max-width: 500px) {
-  .cardBody {
+  .container {
     width: 99%;
   }
   .side {
