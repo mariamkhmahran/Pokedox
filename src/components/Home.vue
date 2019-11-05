@@ -1,23 +1,17 @@
 <template>
   <div :class="{sideContainer:this.side, mainContainer:!this.side}" class="homeContainer">
     <Poke-Card :side="side" :key="i" v-for="(id, i) in IDs" :ID="id"></Poke-Card>
-    <scroll-loader :loader-method="getMorePokemons" :loader-enable="loadMore">
-      <div>Loading...</div>
-    </scroll-loader>
   </div>
 </template>
 
 <script>
 import axios from "axios";
 import PokeCard from "./PokeCard/PokeCard";
-import ScrollLoader from "vue-scroll-loader";
-/* eslint-disable no-console */
 
 export default {
   name: "home",
   components: {
-    PokeCard,
-    ScrollLoader
+    PokeCard
   },
   props: {
     side: Boolean
@@ -30,22 +24,40 @@ export default {
     };
   },
   beforeMount() {
-    this.getPokemonsData("https://pokeapi.co/api/v2/pokemon");
+    this.getPokemonsIDs("https://pokeapi.co/api/v2/pokemon").then(() => {
+      if (document.querySelector(".sideContainer"))
+        document
+          .querySelector(".sideContainer")
+          .addEventListener("scroll", this.sideScroll);
+      window.onscroll = this.scroll;
+    });
   },
   methods: {
-    getPokemonsData(url) {
-      axios.get(url).then(res => {
-        this.next = res.next;
-        this.IDs = res.data.results.map(pokemon => {
+    async getPokemonsIDs(url) {
+      await axios.get(url).then(res => {
+        this.next = res.data.next;
+        var newIDS = res.data.results.map(pokemon => {
           var num = pokemon.url.split("/");
           return num[num.length - 2];
         });
+        var arr = this.IDs.value ? [] : this.IDs;
+        this.IDs = arr.concat(newIDS);
       });
     },
-    getMorePokemons() {
-      console.log("here");
-
-      this.getPokemonsData(this.next);
+    scroll() {
+      let bottomOfWindow =
+        window.innerHeight + window.pageYOffset >= document.body.scrollHeight;
+      if (bottomOfWindow) {
+        this.getPokemonsIDs(this.next);
+      }
+    },
+    sideScroll() {
+      var cont = document.querySelector(".sideContainer");
+      let bottomOfWindow =
+        cont.scrollTop >= cont.scrollHeight - cont.offsetHeight;
+      if (bottomOfWindow) {
+        this.getPokemonsIDs(this.next);
+      }
     }
   }
 };
@@ -60,7 +72,7 @@ export default {
   align-items: center;
   padding: 10px;
   margin: auto;
-  overflow: scroll;
+  overflow: visible;
 }
 .mainContainer {
   width: 80%;
