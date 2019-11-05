@@ -97,5 +97,15 @@ export default {
   .mainContainer {
     width: 97%;
   }
+
+  .sideContainer {
+    width: 30%;
+  }
+}
+
+@media only screen and (max-width: 800px) {
+  .sideContainer {
+    visibility: hidden;
+  }
 }
 </style>

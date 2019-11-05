@@ -241,4 +241,22 @@ export default {
   align-items: center;
   margin: 20px 35px 0;
 }
+
+@media only screen and (max-width: 1200px) {
+  .sidebar {
+    width: 58%;
+  }
+
+  .desc {
+    font-size: 15px;
+    width: 100%;
+    height: 100px;
+    text-overflow: ellipsis;
+  }
+}
+@media only screen and (max-width: 800px) {
+  .sidebar {
+    width: 90%;
+  }
+}
 </style>

@@ -137,28 +137,31 @@ export default {
   overflow: hidden;
 }
 
-@media only screen and (max-width: 1050px) {
-  .container {
+@media only screen and (max-width: 1200px) {
+  #container {
     width: 32%;
   }
-  .side {
-    width: 90%;
+
+  .side#container {
+    width: 97%;
   }
 }
 @media only screen and (max-width: 800px) {
-  .container {
+  #container {
     width: 49%;
   }
-  .side {
-    width: 90%;
+
+  .side#container {
+    width: 97%;
   }
 }
 @media only screen and (max-width: 500px) {
-  .container {
+  #container {
     width: 99%;
   }
-  .side {
-    width: 90%;
+
+  .side#container {
+    width: 97%;
   }
 }
 </style>
