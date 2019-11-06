@@ -5,8 +5,8 @@
       <div class="cardFooter">
         <span id="pokeNumber">{{pokeNumber}}</span>
         <br />
-        <span id="pokeName">
-          <b>{{pokeName}}</b>
+        <span id="name">
+          <b>{{name}}</b>
         </span>
         <div id="tags">
           <Tag :key="type" v-for="type in types" :type="type" />
@@ -24,26 +24,26 @@ export default {
   components: {
     Tag
   },
-  props: { ID: String, side: Boolean },
+  props: { name: String, side: Boolean },
   data: () => {
     return {
       pokemon: null,
-      pokeName: "",
+      ID: "",
       spriteURL: "",
       types: []
     };
   },
   beforeMount() {
-    this.getPokemon(this.ID).then(p => {
-      this.pokemon = p.pokemon;
-      this.spriteURL = this.pokemon.sprites.front_default;
-      this.types = this.pokemon.types.map(t => t.type.name);
-      this.pokeName = this.pokemon.name;
+    this.getPokemon(this.name).then(({ pokemon, id, spriteURL, types }) => {
+      this.pokemon = pokemon;
+      this.ID = id;
+      this.spriteURL = spriteURL;
+      this.types = types;
     });
   },
   computed: {
     pokeNumber() {
-      var num = this.ID;
+      var num = "" + this.ID;
       while (num.length < 3) {
         num = "0" + num;
       }
@@ -52,7 +52,7 @@ export default {
   },
   methods: {
     showDetails() {
-      this.$router.replace({ path: `/pokemon/${this.ID}` });
+      this.$router.replace({ path: `/pokemon/${this.name}` });
     }
   }
 };
@@ -102,7 +102,7 @@ export default {
   margin: 10px 0px;
 }
 
-#pokeName {
+#name {
   color: black;
   font-size: 20px;
 }

@@ -54,10 +54,11 @@ export default {
     Tag,
     Stats
   },
-  props: ["ID"],
+  props: ["name"],
   data: () => {
     return {
       pokemon: null,
+      ID: "",
       pokeName: "",
       desc: "",
       spriteURL: "",
@@ -74,7 +75,7 @@ export default {
   },
   computed: {
     pokeNumber() {
-      var num = this.ID;
+      var num = "" + this.ID;
       while (num.length < 3) {
         num = "0" + num;
       }
@@ -82,29 +83,37 @@ export default {
     }
   },
   watch: {
-    ID() {
+    name() {
       this.loadPokemon();
-    },
-    pokemon() {
-      this.spriteURL = this.pokemon.sprites.front_default;
-      this.types = this.pokemon.types.map(t => t.type.name);
-      this.abilities = this.pokemon.abilities.map(t => t.ability.name);
-      this.pokeName = this.pokemon.name;
-      this.height = this.pokemon.height / 10;
-      this.weight = this.pokemon.weight / 10;
-      this.baseExp = this.pokemon.base_experience;
-      this.stats = this.pokemon.stats.map(s => ({
-        name: s.stat.name,
-        value: s.base_stat
-      }));
     }
   },
   methods: {
     loadPokemon() {
-      this.getPokemon(this.ID).then(res => {
-        this.pokemon = res.pokemon;
-        this.desc = res.desc;
-      });
+      this.getPokemon(this.name).then(
+        ({
+          pokemon,
+          id,
+          desc,
+          spriteURL,
+          types,
+          abilities,
+          height,
+          weight,
+          baseExp,
+          stats
+        }) => {
+          this.pokemon = pokemon;
+          this.ID = id;
+          this.desc = desc;
+          this.spriteURL = spriteURL;
+          this.types = types;
+          this.abilities = abilities;
+          this.height = height;
+          this.weight = weight;
+          this.baseExp = baseExp;
+          this.stats = stats;
+        }
+      );
     }
   }
 };

@@ -1,12 +1,13 @@
 <template>
   <div :class="{sideContainer:this.side, mainContainer:!this.side}" class="homeContainer">
-    <Poke-Card :side="side" :key="i" v-for="(id, i) in IDs" :ID="id"></Poke-Card>
+    <Poke-Card :side="side" :key="i" v-for="(name, i) in pokeNames" :name="name"></Poke-Card>
   </div>
 </template>
 
 <script>
-import axios from "axios";
+// import axios from "axios";
 import PokeCard from "./PokeCard/PokeCard";
+/* eslint-disable no-console */
 
 export default {
   name: "home",
@@ -18,13 +19,11 @@ export default {
   },
   data: () => {
     return {
-      loadMore: true,
-      IDs: [],
-      next: ""
+      pokeNames: []
     };
   },
   beforeMount() {
-    this.getPokemonsIDs("https://pokeapi.co/api/v2/pokemon").then(() => {
+    this.getPokemons().then(() => {
       if (document.querySelector(".sideContainer"))
         document
           .querySelector(".sideContainer")
@@ -33,22 +32,17 @@ export default {
     });
   },
   methods: {
-    async getPokemonsIDs(url) {
-      await axios.get(url).then(res => {
-        this.next = res.data.next;
-        var newIDS = res.data.results.map(pokemon => {
-          var num = pokemon.url.split("/");
-          return num[num.length - 2];
-        });
-        var arr = this.IDs.value ? [] : this.IDs;
-        this.IDs = arr.concat(newIDS);
+    async getPokemons() {
+      await this.loadNextPage().then(newPokemons => {
+        var arr = this.pokeNames.value ? [] : this.pokeNames;
+        this.pokeNames = arr.concat(newPokemons);
       });
     },
     scroll() {
       let bottomOfWindow =
         window.innerHeight + window.pageYOffset >= document.body.scrollHeight;
       if (bottomOfWindow) {
-        this.getPokemonsIDs(this.next);
+        this.getPokemons(this.next);
       }
     },
     sideScroll() {
@@ -56,7 +50,7 @@ export default {
       let bottomOfWindow =
         cont.scrollTop >= cont.scrollHeight - cont.offsetHeight;
       if (bottomOfWindow) {
-        this.getPokemonsIDs(this.next);
+        this.getPokemons();
       }
     }
   }
