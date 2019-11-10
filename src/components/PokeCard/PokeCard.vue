@@ -1,5 +1,5 @@
 <template>
-  <div id="container" :class="{side: this.side}" @click="showDetails">
+  <div id="container" :class="{side: this.side}" @click="showDetails" @mouseenter="preFetchPokemon">
     <div class="cardBody">
       <div id="Upper"></div>
       <div class="cardFooter">
@@ -53,6 +53,9 @@ export default {
   methods: {
     showDetails() {
       this.$router.replace({ path: `/pokemon/${this.name}` });
+    },
+    preFetchPokemon() {
+      this.getPokemon(this.name, true);
     }
   }
 };

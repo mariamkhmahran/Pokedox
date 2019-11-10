@@ -89,7 +89,7 @@ export default {
   },
   methods: {
     loadPokemon() {
-      this.getPokemon(this.name).then(
+      this.getPokemon(this.name, true).then(
         ({
           pokemon,
           id,

@@ -14,6 +14,7 @@ const routes = [
   { path: "/pokemon/:name", component: DetailsView, props: true }
 ];
 const router = new VueRouter({ routes });
+const cache = window.caches;
 
 Vue.mixin({
   data() {
@@ -22,10 +23,20 @@ Vue.mixin({
     };
   },
   methods: {
-    getPokemon: async name => {
+    async getPokemon(name, withDescription = false) {
+      var pokemon = await this.getPokemonBaseData(name);
+      var desc = withDescription
+        ? await this.getPokemonDescription(name)
+        : null;
+
+      return {
+        ...pokemon,
+        desc
+      };
+    },
+    getPokemonBaseData: async name => {
       var pokemon;
       var id;
-      var desc;
       var spriteURL;
       var types;
       var abilities;
@@ -33,31 +44,35 @@ Vue.mixin({
       var weight;
       var baseExp;
       var stats;
-      await axios.get(`https://pokeapi.co/api/v2/pokemon/${name}`).then(p => {
-        pokemon = p.data;
-        id = pokemon.id;
-        spriteURL = pokemon.sprites.front_default;
-        types = pokemon.types.map(t => t.type.name);
-        abilities = pokemon.abilities.map(t => t.ability.name);
-        height = pokemon.height / 10;
-        weight = pokemon.weight / 10;
-        baseExp = pokemon.base_experience;
-        stats = pokemon.stats.map(s => ({
-          name: s.stat.name,
-          value: s.base_stat
-        }));
-      });
-      await axios
-        .get(`https://pokeapi.co/api/v2/pokemon-species/${pokemon.id} `)
+      var url = `https://pokeapi.co/api/v2/pokemon/${name}`;
+      await cache
+        .match(url, { cacheName: "pokedox", ignoreVary: true })
         .then(p => {
-          desc = p.data.flavor_text_entries.find(t => {
-            return t.language.name === "en";
-          }).flavor_text;
+          if (p) {
+            return p.json();
+          } else {
+            return axios.get(url);
+          }
+        })
+        .then(async p => {
+          pokemon = p.data ? p.data : p;
+          id = pokemon.id;
+          spriteURL = pokemon.sprites.front_default;
+          types = pokemon.types.map(t => t.type.name);
+          abilities = pokemon.abilities.map(t => t.ability.name);
+          height = pokemon.height / 10;
+          weight = pokemon.weight / 10;
+          baseExp = pokemon.base_experience;
+          stats = pokemon.stats.map(s => ({
+            name: s.stat.name,
+            value: s.base_stat
+          }));
+
+          await caches.open("pokedox").then(cache => cache.add(url));
         });
       return {
         pokemon,
         id,
-        desc,
         spriteURL,
         types,
         abilities,
@@ -67,14 +82,48 @@ Vue.mixin({
         stats
       };
     },
+    getPokemonDescription: async name => {
+      var desc;
+      var url = `https://pokeapi.co/api/v2/pokemon-species/${name}`;
+      await cache
+        .match(url, { cacheName: "pokedox", ignoreVary: true })
+        .then(p => {
+          if (p) {
+            return p.json();
+          } else {
+            return axios.get(url);
+          }
+        })
+        .then(async p => {
+          p = p.data ? p.data : p;
+          desc = p.flavor_text_entries.find(t => {
+            return t.language.name === "en";
+          }).flavor_text;
+
+          await caches.open("pokedox").then(cache => cache.add(url));
+        });
+      return desc;
+    },
     async loadNextPage() {
       var newPokemons;
-      await axios.get(this.next).then(res => {
-        this.next = res.data.next;
-        newPokemons = res.data.results.map(pokemon => {
-          return pokemon.name;
+      await cache
+        .match(this.next, { cacheName: "pokedox", ignoreVary: true })
+        .then(response => {
+          if (response) {
+            return response.json();
+          } else {
+            return axios.get(this.next);
+          }
+        })
+        .then(async res => {
+          res = res.data ? res.data : res;
+          newPokemons = res.results.map(pokemon => {
+            return pokemon.name;
+          });
+
+          await caches.open("pokedox").then(cache => cache.add(this.next));
+          this.next = res.data ? res.data.next : res.next;
         });
-      });
       return newPokemons;
     }
   }
