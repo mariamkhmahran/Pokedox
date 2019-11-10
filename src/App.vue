@@ -25,5 +25,9 @@ export default {
   margin: 0px;
   display: flex;
   flex-direction: column;
+  /* height: fit-content; */
+  /* overflow-y: scroll; */
+
+  height: 100vh;
 }
 </style>

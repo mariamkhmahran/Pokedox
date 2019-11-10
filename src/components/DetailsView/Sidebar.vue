@@ -1,46 +1,82 @@
 <template>
-  <div class="sidebar">
-    <div class="row">
-      <img id="sprite" :src="spriteURL" />
-      <div class="col" style="width: 48%">
-        <span id="pokeNumber">{{pokeNumber}}</span>
-        <span id="pokeName">
-          <b>{{pokeName}}</b>
+  <div class="main">
+    <div v-if="!loading" class="sidebar">
+      <div class="row">
+        <img id="sprite" :src="spriteURL" />
+        <div class="col" style="width: 48%">
+          <span id="pokeNumber">{{pokeNumber}}</span>
+          <span id="pokeName">
+            <b>{{pokeName}}</b>
+          </span>
+          <span class="desc data">{{desc}}</span>
+          <div class="row types">
+            <Tag :key="type" v-for="type in types" :type="type" details id="tags" />
+          </div>
+        </div>
+      </div>
+      <div class="row detail">
+        <div class="col detail border">
+          <span id="value">
+            <b>{{height}} m</b>
+          </span>
+          <span id="param">HEIGHT</span>
+        </div>
+        <div class="col detail border">
+          <span id="value">
+            <b>{{weight}} kg</b>
+          </span>
+          <span id="param">WEIGHT</span>
+        </div>
+        <div class="col detail">
+          <span id="value">
+            <b>{{baseExp}}</b>
+          </span>
+          <span id="param">BASE EXP</span>
+        </div>
+      </div>
+      <div class="row stats">
+        <stats :key="stat.name" v-for="stat in stats" :param="stat.name" :value="stat.value" />
+      </div>
+      <div class="row evolutions">
+        <span id="evolutionsParam">
+          <b>Evolutoin Chain:</b>
         </span>
-        <span class="data desc">{{desc}}</span>
+        <span
+          :key="evol.name"
+          v-for="evol in evolutionChain"
+          @click="()=>{showEvol(evol.name)}"
+          id="evolutions"
+        >{{evol.name}}</span>
       </div>
     </div>
-    <div class="col">
-      <span class="data">
-        <b>Height:</b>
-        {{height}} m
-      </span>
-      <span class="data">
-        <b>Weight:</b>
-        {{weight}} kg
-      </span>
-      <span class="data">
-        <b>Base Experience:</b>
-        {{baseExp}}
-      </span>
-    </div>
+    <img v-show="loading" src="../../assets/loadingImage.png" class="loading" />
   </div>
 </template>
 
 <script>
-/* eslint-disable no-console */
+import Tag from "../Tag";
+import Stats from "./Stats";
+
 export default {
-  props: ["ID"],
+  components: {
+    Tag,
+    Stats
+  },
+  props: ["name"],
   data: () => {
     return {
+      loading: true,
       pokemon: null,
+      ID: "",
       pokeName: "",
       desc: "",
       spriteURL: "",
       types: [],
+      evolutionChain: [],
       height: 0,
       weight: 0,
-      baseExp: 0
+      baseExp: 0,
+      stats: []
     };
   },
   created() {
@@ -48,7 +84,7 @@ export default {
   },
   computed: {
     pokeNumber() {
-      var num = this.ID;
+      var num = "" + this.ID;
       while (num.length < 3) {
         num = "0" + num;
       }
@@ -56,44 +92,83 @@ export default {
     }
   },
   watch: {
-    ID() {
+    name() {
+      this.loading = true;
       this.loadPokemon();
-    },
-    pokemon() {
-      this.spriteURL = this.pokemon.sprites.front_default;
-      this.types = this.pokemon.types.map(t => t.type.name);
-      this.pokeName = this.pokemon.name;
-      this.height = this.pokemon.height / 10;
-      this.weight = this.pokemon.weight / 10;
-      this.baseExp = this.pokemon.base_experience;
     }
   },
   methods: {
     loadPokemon() {
-      this.getPokemon(this.ID).then(res => {
-        this.pokemon = res.pokemon;
-        this.desc = res.desc;
-      });
+      this.getPokemon(this.name, true).then(
+        ({
+          pokemon,
+          id,
+          desc,
+          spriteURL,
+          types,
+          evolutionChain,
+          height,
+          weight,
+          baseExp,
+          stats
+        }) => {
+          this.pokemon = pokemon;
+          this.ID = id;
+          this.desc = desc;
+          this.spriteURL = spriteURL;
+          this.types = types;
+          this.evolutionChain = evolutionChain;
+          this.height = height;
+          this.weight = weight;
+          this.baseExp = baseExp;
+          this.stats = stats;
+          this.loading = false;
+        }
+      );
+    },
+    showEvol(newName) {
+      if (newName != this.name)
+        this.$router.replace({ path: `/pokemon/${newName}` });
     }
   }
 };
 </script>
 
 <style scoped>
-.sidebar {
+.loading {
+  animation-name: spin;
+  animation-duration: 4000ms;
+  animation-iteration-count: infinite;
+  animation-timing-function: linear;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+.main {
   display: flex;
-  flex-direction: column;
+  justify-content: center;
+  align-items: center;
   width: 46%;
   height: 80vh;
-  transition: all 0.2s ease-in-out;
-  cursor: pointer;
   box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.2);
-  transition: 0.3s;
   border-radius: 6px;
   position: fixed;
   top: 100px;
   right: 40px;
   padding: 20px;
+}
+
+.sidebar {
+  /* display: flex;
+  flex-direction: column; */
+  transition: all 0.2s ease-in-out;
+  transition: 0.3s;
 }
 
 #sprite {
@@ -103,8 +178,8 @@ export default {
   margin: 15px;
   border-style: solid;
   border-width: 2px;
-  border-color: rgba(150, 148, 148, 0.651);
-  box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.2);
+  border-color: rgba(150, 148, 148, 0.185);
+  box-shadow: 0 2px 8px 0 rgba(255, 90, 96, 0.37);
 }
 
 .data {
@@ -114,19 +189,26 @@ export default {
 }
 
 .desc {
-  font-size: 22px;
+  font-size: 20px;
+  width: 100%;
+  height: 140px;
+  text-overflow: ellipsis;
+}
+
+.data.desc {
+  margin: 0 0 0px 15px;
 }
 
 #pokeNumber {
   color: rgb(141, 140, 140);
-  margin: 20px 0px 7px 15px;
+  margin: 20px 0px 5px 15px;
   font-size: 25px;
 }
 
 #pokeName {
   color: black;
-  font-size: 40px;
-  margin: 0px 0px 17px 15px;
+  font-size: 39px;
+  margin: 0px 0px 10px 15px;
 }
 
 .row {
@@ -138,5 +220,90 @@ export default {
   display: flex;
   flex-direction: column;
   flex-wrap: wrap;
+}
+
+.row.detail {
+  margin-top: 30px;
+  justify-content: space-around;
+}
+
+.col.detail {
+  justify-content: center;
+  align-items: center;
+  width: 31%;
+}
+
+.col.border {
+  border-right-style: solid;
+  border-right-width: 1px;
+  border-right-color: rgba(128, 128, 128, 0.651);
+}
+
+#value {
+  font-size: 22px;
+  color: black;
+}
+
+#param {
+  font-size: 18px;
+  color: rgb(141, 140, 140);
+  margin-top: 2px;
+}
+
+.types {
+  margin: 10px 20px;
+}
+
+.row.types {
+  width: 32%;
+  justify-content: space-between;
+}
+
+.row.stats {
+  margin: 30px 0 0 0;
+  flex-wrap: wrap;
+  justify-content: space-around;
+}
+
+.row #evolutions {
+  margin-left: 5px;
+  font-size: 18px;
+  color: rgb(141, 140, 140);
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+#evolutions:not(:last-child):after {
+  content: ", ";
+}
+
+#evolutionsParam {
+  font-size: 18px;
+  color: black;
+  margin-top: 2px;
+  margin-right: 3px;
+}
+
+.row.evolutions {
+  align-items: center;
+  margin: 20px 35px 0;
+}
+
+@media only screen and (max-width: 1200px) {
+  .main {
+    width: 58%;
+  }
+
+  .desc {
+    font-size: 15px;
+    width: 100%;
+    height: 100px;
+    text-overflow: ellipsis;
+  }
+}
+@media only screen and (max-width: 800px) {
+  .main {
+    width: 90%;
+  }
 }
 </style>

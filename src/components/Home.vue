@@ -1,11 +1,13 @@
 <template>
-  <div :class="{sideContainer:this.side, mainContainer:!this.side}" class="homeContainer">
-    <Poke-Card :side="side" :key="i" v-for="(id, i) in IDs" :ID="id"></Poke-Card>
+  <div>
+    <div :class="{sideContainer:this.side, mainContainer:!this.side}" class="homeContainer">
+      <Poke-Card :side="side" :key="i" v-for="(name, i) in pokeNames" :name="name"></Poke-Card>
+    </div>
+    <h1 class="loading">Loading ...</h1>
   </div>
 </template>
 
 <script>
-import axios from "axios";
 import PokeCard from "./PokeCard/PokeCard";
 
 export default {
@@ -18,16 +20,40 @@ export default {
   },
   data: () => {
     return {
-      IDs: []
+      pokeNames: []
     };
   },
   beforeMount() {
-    axios.get("https://pokeapi.co/api/v2/pokemon").then(res => {
-      this.IDs = res.data.results.map(pokemon => {
-        var num = pokemon.url.split("/");
-        return num[num.length - 2];
-      });
+    this.getPokemons().then(() => {
+      if (document.querySelector(".sideContainer"))
+        document
+          .querySelector(".sideContainer")
+          .addEventListener("scroll", this.sideScroll);
+      window.onscroll = this.scroll;
     });
+  },
+  methods: {
+    async getPokemons() {
+      await this.loadNextPage().then(newPokemons => {
+        var arr = this.pokeNames.value ? [] : this.pokeNames;
+        this.pokeNames = arr.concat(newPokemons);
+      });
+    },
+    scroll() {
+      let bottomOfWindow =
+        window.innerHeight + window.pageYOffset >= document.body.scrollHeight;
+      if (bottomOfWindow) {
+        this.getPokemons(this.next);
+      }
+    },
+    sideScroll() {
+      var cont = document.querySelector(".sideContainer");
+      let bottomOfWindow =
+        cont.scrollTop >= cont.scrollHeight - cont.offsetHeight;
+      if (bottomOfWindow) {
+        this.getPokemons();
+      }
+    }
   }
 };
 </script>
@@ -41,7 +67,7 @@ export default {
   align-items: center;
   padding: 10px;
   margin: auto;
-  overflow: scroll;
+  overflow: visible;
 }
 .mainContainer {
   width: 80%;
@@ -62,9 +88,39 @@ export default {
   background: transparent;
 }
 
+.loading {
+  text-align: center;
+  animation-name: load;
+  animation-duration: 1900ms;
+  animation-iteration-count: infinite;
+  animation-timing-function: linear;
+}
+
+@keyframes load {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
 @media only screen and (max-width: 1200px) {
   .mainContainer {
     width: 97%;
+  }
+
+  .sideContainer {
+    width: 30%;
+  }
+}
+
+@media only screen and (max-width: 800px) {
+  .sideContainer {
+    visibility: hidden;
   }
 }
 </style>

@@ -1,7 +1,7 @@
 <template>
   <div class="detailesView">
     <Home side />
-    <Sidebar :ID="ID" />
+    <Sidebar :name="name" />
   </div>
 </template>
 
@@ -14,7 +14,7 @@ export default {
     Home,
     Sidebar
   },
-  props: ["ID"]
+  props: ["name"]
 };
 </script>
 
@@ -22,6 +22,6 @@ export default {
 .detailesView {
   display: flex;
   flex-direction: row;
-  overflow: scroll;
+  overflow: hidden;
 }
 </style>
