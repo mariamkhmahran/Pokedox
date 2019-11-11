@@ -1,13 +1,14 @@
 <template>
-  <div :class="{sideContainer:this.side, mainContainer:!this.side}" class="homeContainer">
-    <Poke-Card :side="side" :key="i" v-for="(name, i) in pokeNames" :name="name"></Poke-Card>
+  <div>
+    <div :class="{sideContainer:this.side, mainContainer:!this.side}" class="homeContainer">
+      <Poke-Card :side="side" :key="i" v-for="(name, i) in pokeNames" :name="name"></Poke-Card>
+    </div>
+    <h1 class="loading">Loading ...</h1>
   </div>
 </template>
 
 <script>
-// import axios from "axios";
 import PokeCard from "./PokeCard/PokeCard";
-/* eslint-disable no-console */
 
 export default {
   name: "home",
@@ -85,6 +86,26 @@ export default {
 ::-webkit-scrollbar {
   width: 0px;
   background: transparent;
+}
+
+.loading {
+  text-align: center;
+  animation-name: load;
+  animation-duration: 1900ms;
+  animation-iteration-count: infinite;
+  animation-timing-function: linear;
+}
+
+@keyframes load {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
 }
 
 @media only screen and (max-width: 1200px) {

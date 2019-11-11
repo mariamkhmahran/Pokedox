@@ -13,12 +13,13 @@
         </div>
       </div>
     </div>
-    <img id="sprite" :src="spriteURL" />
+    <img :id="`sprite_${name}`" :src="spriteURL" class="sprite loading" />
   </div>
 </template>
 
 <script>
 import Tag from "../Tag";
+/* eslint-disable no-console */
 
 export default {
   components: {
@@ -40,6 +41,17 @@ export default {
       this.spriteURL = spriteURL;
       this.types = types;
     });
+  },
+  mounted() {
+    var id = `#sprite_${this.name}`;
+    var img = document.querySelector(id);
+
+    img.onload = function() {
+      var i = document.querySelector(id);
+      i.classList.remove("loading");
+      i.src = img.src;
+      img.onload = undefined;
+    };
   },
   computed: {
     pokeNumber() {
@@ -90,7 +102,7 @@ export default {
   box-shadow: 0 2px 12px 0 rgba(255, 90, 96, 0.37);
 }
 
-#container:hover #sprite {
+#container:hover .sprite {
   box-shadow: 0 2px 12px 0 rgba(255, 90, 96, 0.37);
 }
 
@@ -110,7 +122,7 @@ export default {
   font-size: 20px;
 }
 
-#sprite {
+.sprite {
   align-self: center;
   width: 80%;
   box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.2);
@@ -121,6 +133,26 @@ export default {
   top: 5px;
   left: 11%;
   transition: 0.3s;
+}
+
+.loading {
+  content: url("../../assets/loadingImage.png");
+  background-position: center;
+  background-repeat: no-repeat;
+  overflow: hidden;
+  animation-name: spin;
+  animation-duration: 4000ms;
+  animation-iteration-count: infinite;
+  animation-timing-function: linear;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 #Upper {

@@ -22,6 +22,6 @@ export default {
 .detailesView {
   display: flex;
   flex-direction: row;
-  overflow: scroll;
+  overflow: hidden;
 }
 </style>
