@@ -1,54 +1,62 @@
 <template>
-  <div class="sidebar">
-    <div class="row">
-      <img id="sprite" :src="spriteURL" />
-      <div class="col" style="width: 48%">
-        <span id="pokeNumber">{{pokeNumber}}</span>
-        <span id="pokeName">
-          <b>{{pokeName}}</b>
-        </span>
-        <span class="desc data">{{desc}}</span>
-        <div class="row types">
-          <Tag :key="type" v-for="type in types" :type="type" details id="tags" />
+  <div class="main">
+    <div v-if="!loading" class="sidebar">
+      <div class="row">
+        <img id="sprite" :src="spriteURL" />
+        <div class="col" style="width: 48%">
+          <span id="pokeNumber">{{pokeNumber}}</span>
+          <span id="pokeName">
+            <b>{{pokeName}}</b>
+          </span>
+          <span class="desc data">{{desc}}</span>
+          <div class="row types">
+            <Tag :key="type" v-for="type in types" :type="type" details id="tags" />
+          </div>
         </div>
       </div>
-    </div>
-    <div class="row detail">
-      <div class="col detail border">
-        <span id="value">
-          <b>{{height}} m</b>
-        </span>
-        <span id="param">HEIGHT</span>
+      <div class="row detail">
+        <div class="col detail border">
+          <span id="value">
+            <b>{{height}} m</b>
+          </span>
+          <span id="param">HEIGHT</span>
+        </div>
+        <div class="col detail border">
+          <span id="value">
+            <b>{{weight}} kg</b>
+          </span>
+          <span id="param">WEIGHT</span>
+        </div>
+        <div class="col detail">
+          <span id="value">
+            <b>{{baseExp}}</b>
+          </span>
+          <span id="param">BASE EXP</span>
+        </div>
       </div>
-      <div class="col detail border">
-        <span id="value">
-          <b>{{weight}} kg</b>
-        </span>
-        <span id="param">WEIGHT</span>
+      <div class="row stats">
+        <stats :key="stat.name" v-for="stat in stats" :param="stat.name" :value="stat.value" />
       </div>
-      <div class="col detail">
-        <span id="value">
-          <b>{{baseExp}}</b>
+      <div class="row evolutions">
+        <span id="evolutionsParam">
+          <b>Evolutoin Chain:</b>
         </span>
-        <span id="param">BASE EXP</span>
+        <span
+          :key="evol.name"
+          v-for="evol in evolutionChain"
+          @click="()=>{showEvol(evol.name)}"
+          id="evolutions"
+        >{{evol.name}}</span>
       </div>
     </div>
-    <div class="row stats">
-      <stats :key="stat.name" v-for="stat in stats" :param="stat.name" :value="stat.value" />
-    </div>
-    <div class="row abilities">
-      <span id="abilitiesParam">
-        <b>ABILITIES:</b>
-      </span>
-      <span :key="ability" v-for="ability in abilities" id="abilities">{{ability}}</span>
-    </div>
+    <img v-show="loading" src="../../assets/loadingImage.png" class="loading" />
   </div>
 </template>
 
 <script>
 import Tag from "../Tag";
 import Stats from "./Stats";
-/* eslint-disable no-console */
+
 export default {
   components: {
     Tag,
@@ -57,13 +65,14 @@ export default {
   props: ["name"],
   data: () => {
     return {
+      loading: true,
       pokemon: null,
       ID: "",
       pokeName: "",
       desc: "",
       spriteURL: "",
       types: [],
-      abilities: [],
+      evolutionChain: [],
       height: 0,
       weight: 0,
       baseExp: 0,
@@ -84,6 +93,7 @@ export default {
   },
   watch: {
     name() {
+      this.loading = true;
       this.loadPokemon();
     }
   },
@@ -96,7 +106,7 @@ export default {
           desc,
           spriteURL,
           types,
-          abilities,
+          evolutionChain,
           height,
           weight,
           baseExp,
@@ -107,32 +117,58 @@ export default {
           this.desc = desc;
           this.spriteURL = spriteURL;
           this.types = types;
-          this.abilities = abilities;
+          this.evolutionChain = evolutionChain;
           this.height = height;
           this.weight = weight;
           this.baseExp = baseExp;
           this.stats = stats;
+          this.loading = false;
         }
       );
+    },
+    showEvol(newName) {
+      if (newName != this.name)
+        this.$router.replace({ path: `/pokemon/${newName}` });
     }
   }
 };
 </script>
 
 <style scoped>
-.sidebar {
+.loading {
+  animation-name: spin;
+  animation-duration: 4000ms;
+  animation-iteration-count: infinite;
+  animation-timing-function: linear;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+.main {
   display: flex;
-  flex-direction: column;
+  justify-content: center;
+  align-items: center;
   width: 46%;
   height: 80vh;
-  transition: all 0.2s ease-in-out;
   box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.2);
-  transition: 0.3s;
   border-radius: 6px;
   position: fixed;
   top: 100px;
   right: 40px;
   padding: 20px;
+}
+
+.sidebar {
+  /* display: flex;
+  flex-direction: column; */
+  transition: all 0.2s ease-in-out;
+  transition: 0.3s;
 }
 
 #sprite {
@@ -229,30 +265,32 @@ export default {
   justify-content: space-around;
 }
 
-.row #abilities {
+.row #evolutions {
   margin-left: 5px;
   font-size: 18px;
   color: rgb(141, 140, 140);
+  cursor: pointer;
+  text-decoration: underline;
 }
 
-#abilities:not(:last-child):after {
+#evolutions:not(:last-child):after {
   content: ", ";
 }
 
-#abilitiesParam {
+#evolutionsParam {
   font-size: 18px;
   color: black;
   margin-top: 2px;
   margin-right: 3px;
 }
 
-.row.abilities {
+.row.evolutions {
   align-items: center;
   margin: 20px 35px 0;
 }
 
 @media only screen and (max-width: 1200px) {
-  .sidebar {
+  .main {
     width: 58%;
   }
 
@@ -264,7 +302,7 @@ export default {
   }
 }
 @media only screen and (max-width: 800px) {
-  .sidebar {
+  .main {
     width: 90%;
   }
 }
